@@ -1,6 +1,6 @@
 #CIS261
 #Nakee Hayes
-#Week 2 Library Book Tracker 
+#Week 3 Library Book Tracker 
 
 from datetime import datetime
 
@@ -12,9 +12,9 @@ def display_welcome():
     print(f"Today's Date: {date_string}")
     print("=" * 50)
     print("Instructions:")
-    print(" -Enter book information when prompted.")
+    print("- Enter book information when prompted.")
     print("- Type 'ESC' to end book return process when finished.")
-    print("- Late Fee: $0.25 per dat after 14 days.")
+    print("- Late Fee: $0.25 per day after 14 days.")
     print("- Damage Fees: Good=$0, Fair=$5, Damaged=$15")
     print("=" * 50)
 
@@ -54,11 +54,12 @@ def display_checkout(title, borrower, days, condition, fee):
     print(f"Book Title: {title}")
     print(f"Borrower: {borrower}")
     print(f"Days Borrowed: {days}")
+    print(f"Book Condition: {condition}")
     print(f"Total Fee: ${fee:.2f}")
     print("=" * 50)
     print("Book return recorded successfully!\n")
 
-def display_summary(total_books, total_fees):
+def display_summary(total_books, total_fees, average_fees, highest_fee, lowest_fees):
     today = datetime.now()
     date_string = today.strftime("%m/%d/%Y")
     print("\n")
@@ -68,26 +69,67 @@ def display_summary(total_books, total_fees):
     print(f"Date: {date_string}")
     print("=" * 50)
     print(f"Total Books Processed: {total_books}")
-    print(f"Total Fees Collected: ${total_fees: .2f}")
+    print(f"Total Fees Collected: $ {total_fees: .2f}")
+    print(f"Average Fee per Book: $ {average_fees:.2f}")
+    print(f"Highest Fee Charged:  $ {highest_fee:.2f}")
+    print(f"Lowest Fee Charged:  $ {lowest_fees:.2f}")
     print("=" * 50)
     print("Thank you for using the Library Book Tracker!\n")
 
+def display_all_checkouts(titles, borrowers, days_list, conditions, fees):
+     print("=" * 50)
+     print("All Book Checkouts - Detailed List")
+     print("=" * 50)
+     for i in range(len(titles)):
+        print(f"\nCheckout #{i + 1}:")
+        print(f"  Book:  {titles[i]}")
+        print(f"  Borrower:  {borrowers[i]}")
+        print(f"  Days:  {days_list[i]}")
+        print(f"  Condition:  {conditions[i]}")
+        print(f"  Fee:  ${fees[i]:.2f}")
+     print("=" * 50)
+
+def calculate_statistics(fees):
+     if len(fees) == 0:
+          return 0.0, 0.00, 0.00, 0.00
+     total_fees = sum(fees)
+     average_fees = total_fees / len(fees)
+     highest_fee = max(fees)
+     lowest_fees = min(fees)
+     return total_fees, average_fees, highest_fee, lowest_fees
 
 def main():
     display_welcome()
-    total_books = 0 
-    total_fees = 0.0
+    titles = []
+    borrowers = []
+    days_lists = []
+    conditions = []
+    fees = []
+    dates = []
+    
     while True:
         title, borrower, days, condition = get_book_info()
         if title == "ESC":
             break 
         fee = calculate_fees(days, condition)
         display_checkout(title, borrower, days, condition, fee)
-        total_books = total_books + 1
-        total_fees = total_fees + fee
-    if total_books > 0:
-            display_summary(total_books, total_fees)
+        titles.append(title)
+        borrowers.append(borrower)
+        days_lists.append(days)
+        conditions.append(condition)
+        fees.append(fee)
+        dates.append(datetime.now())
+
+    if len(titles) > 0:
+        display_all_checkouts(titles, borrowers, days_lists, conditions, fees)
+        total_fees, average_fees, highest_fee, lowest_fees = calculate_statistics(fees)
+        display_summary(len(titles), total_fees, average_fees, highest_fee, lowest_fees)
     else:
             print("\nNo books were processed today.")
+
+
+
+
+
 
 main()
