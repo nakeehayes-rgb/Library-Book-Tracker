@@ -1,6 +1,6 @@
 #CIS261
 #Nakee Hayes
-#Week 3 Library Book Tracker 
+#Week 4 Library Book Tracker 
 
 from datetime import datetime
 
@@ -30,7 +30,7 @@ def get_book_info():
     return title, borrower, days, condition 
 
 def calculate_fees(days_borrowed, condition):
-    late_fee = 0.0              #Set defalut values first and change them if needed based on conditions # Do I need to set default values because its in a function? 
+    late_fee = 0.0              #Set defalut values first and change them if needed based on conditions
     damage_fee = 0.00
     if days_borrowed > 14:     
         late_fee = days_borrowed - 14
@@ -76,27 +76,88 @@ def display_summary(total_books, total_fees, average_fees, highest_fee, lowest_f
     print("=" * 50)
     print("Thank you for using the Library Book Tracker!\n")
 
-def display_all_checkouts(titles, borrowers, days_list, conditions, fees):
+def display_all_checkouts(checkouts):
      print("=" * 50)
      print("All Book Checkouts - Detailed List")
      print("=" * 50)
-     for i in range(len(titles)):
-        print(f"\nCheckout #{i + 1}:")
-        print(f"  Book:  {titles[i]}")
-        print(f"  Borrower:  {borrowers[i]}")
-        print(f"  Days:  {days_list[i]}")
-        print(f"  Condition:  {conditions[i]}")
-        print(f"  Fee:  ${fees[i]:.2f}")
+     for i, checkout in enumerate(checkouts, 1):
+        date_string = checkout["date"].strftime("%m/%d/%Y")
+        print(f"\nCheckout #{i}:")
+        print(f"  Date:  {date_string}")
+        print(f"  Book:  {checkout['title']}")
+        print(f"  Borrower:  {checkout['borrower']}")
+        print(f"  Days:   {checkout['days']}")
+        print(f"  Condition: {checkout['condition']}")
+        print(f"  Fee:  ${checkout['fee']:.2f}")
      print("=" * 50)
 
-def calculate_statistics(fees):
-     if len(fees) == 0:
+def calculate_statistics(checkouts):
+     if len(checkouts) == 0:
           return 0.0, 0.00, 0.00, 0.00
+     fees = [checkout["fee"] for checkout in checkouts]
      total_fees = sum(fees)
      average_fees = total_fees / len(fees)
      highest_fee = max(fees)
      lowest_fees = min(fees)
      return total_fees, average_fees, highest_fee, lowest_fees
+
+def find_checkouts_by_borrower(checkouts, borrower_name):
+    results = []
+    for checkout in checkouts:
+            if checkout["borrower"].lower() == borrower_name.lower():
+                results.append(checkout)
+    return results
+
+def find_overdue_books(checkouts):
+    overdue = []
+    for checkout in checkouts:
+        if checkout['days'] > 14:
+            overdue.append(checkout)
+    return overdue
+
+def find_damaged_books(checkouts):
+    damaged = []
+    for checkout in checkouts:
+        if checkout['condition'] == "Fair" or checkout['condition'] == "Damaged":
+            damaged.append(checkout)
+    return damaged
+
+def display_filtered_checkouts(checkouts, filter_description):
+    print("\n" + "=" * 50)
+    print(f"{filter_description.upper()}")
+    print("=" * 50)
+    if len(checkouts) == 0:
+        print("No matching records found.")
+    else:
+        print(f"Found {len(checkouts)} record(s):\n")
+        for checkout in checkouts:
+            date_string = checkout['date'].strftime("%m/%d/%Y")
+            print(f"  Book:  {checkout['title']}")
+            print(f"  Date:  {date_string}")
+            print(f"  Borrower:  {checkout['borrower']}")
+            print(f"  Days:   {checkout['days']}, Condition: {checkout['condition']}")
+            print(f"  Fee:  ${checkout['fee']:.2f}")
+            print()
+    print("=" * 50)
+
+def save_checkouts_to_file(checkouts, filename):
+    try:
+        with open(filename, 'a') as file:
+            for checkout in checkouts:
+                date_string = checkout["date"].strftime("%Y-%m-%d")
+                line = f"{checkout['title']}|{checkout['borrower']}|{checkout['days']}|{checkout['condition']}|{checkout['fee']:.2f}|{date_string}\n"
+                file.write(line)
+        print("\n" + "=" * 50)
+        print("FILE SAVE SUCCESSFUL")
+        print("=" * 50)
+        print(f"Saved {len(checkouts)} record(s) to: {filename}")
+        print("=" * 50)
+    except Exception as e:
+        print(f"\nError saving file: {e}")
+
+
+
+
 
 def main():
     display_welcome()
