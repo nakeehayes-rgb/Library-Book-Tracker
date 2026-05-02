@@ -155,42 +155,81 @@ def save_checkouts_to_file(checkouts, filename):
     except Exception as e:
         print(f"\nError saving file: {e}")
 
-
-
+def load_checkouts_from_file(filename):
+    checkouts = []
+    try:
+        with open(filename, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line:
+                    parts = line.split("|")
+                    date_object = datetime.strptime(parts[5], "%Y-%m-%d")
+                    checkout = {
+                        'title': parts[0],
+                        'borrower': parts[1], 
+                        'days': int(parts[2]), 
+                        'condition': parts[3], 
+                        'fee': float(parts[4]), 
+                        'date': date_object
+                    }
+                    checkouts.append(checkout)
+        print(f"Loaded {len(checkouts)} records(s) from {filename}")
+        return checkouts
+    except FileNotFoundError:
+        print(f"No previous data found in {filename}")
+        return []
+    except Exception as e:
+        print(f"Error readin file: {e}")
+        return []
 
 
 def main():
+
     display_welcome()
-    titles = []
-    borrowers = []
-    days_lists = []
-    conditions = []
-    fees = []
-    dates = []
-    
+    filename = "checkouts.txt"
+    checkouts = load_checkouts_from_file(filename)
+
+    if len(checkouts) == 0:
+        print("Starting with empty checkout list.")
+    print("\n--- Enter New Book Return ---")
+    print("(Previously saved data will be preserved)\n")
+
     while True:
         title, borrower, days, condition = get_book_info()
         if title == "ESC":
             break 
         fee = calculate_fees(days, condition)
         display_checkout(title, borrower, days, condition, fee)
-        titles.append(title)
-        borrowers.append(borrower)
-        days_lists.append(days)
-        conditions.append(condition)
-        fees.append(fee)
-        dates.append(datetime.now())
+        checkout = {
+            "title": title, 
+            "borrower": borrower, 
+            "days": days, 
+            "condition": condition, 
+            "fee": fee, 
+            "date": datetime.now()
+        }
+        checkouts.append(checkout)
 
-    if len(titles) > 0:
-        display_all_checkouts(titles, borrowers, days_lists, conditions, fees)
-        total_fees, average_fees, highest_fee, lowest_fees = calculate_statistics(fees)
-        display_summary(len(titles), total_fees, average_fees, highest_fee, lowest_fees)
+
+    if len(checkouts) > 0:
+        save_checkouts_to_file(checkouts, filename)
+        display_all_checkouts(checkouts)
+        total_fees, average_fees, highest_fee, lowest_fees = calculate_statistics(checkouts)
+        display_summary(len(checkouts), total_fees, average_fees, highest_fee, lowest_fees)
+        search_choice = input("\nWould you like to search for a borrower? (yes/no):  ")
+        if search_choice.lower() == "yes":
+            borrower_name = input("Enter borrower name to search:  ")
+            results = find_checkouts_by_borrower(checkouts, borrower_name)
+            display_filtered_checkouts(results, f"checkouts for {borrower_name}")
+
+        overdue = find_overdue_books(checkouts)
+        display_filtered_checkouts(overdue, "Overdue Books (Late Returns)")
+
+        damaged = find_damaged_books(checkouts)
+        display_filtered_checkouts(damaged, "Damaged Books")
+
+        print("\nThank you for using the Lirary Book Tracker!")
     else:
-            print("\nNo books were processed today.")
-
-
-
-
-
+        print("\nNo books were processed today.")
 
 main()

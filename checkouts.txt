@@ -1,0 +1,4 @@
+Python Basics |Alice Smith |10|Good|0.00|2026-05-01
+The Great Gatsby|John Doe|18|Good|1.00|2026-05-01
+1984|Jane Smith|14|Damaged|15.00|2026-05-01
+Aninmal Farm|Bob Johnson|20|Fair|6.50|2026-05-01
