@@ -27,7 +27,7 @@ def get_book_info():
     days = int(input("Day's borrowed:  "))
     print("Condtion option: Good, Fair, Damaged")
     condition = input("Book condition:  ")
-    return title, borrower, days, condition 
+    return title, borrower, days, condition #This return statment is technically a Tuple 
 
 def calculate_fees(days_borrowed, condition):
     late_fee = 0.0              #Set defalut values first and change them if needed based on conditions
@@ -80,7 +80,7 @@ def display_all_checkouts(checkouts):
      print("=" * 50)
      print("All Book Checkouts - Detailed List")
      print("=" * 50)
-     for i, checkout in enumerate(checkouts, 1):
+     for i, checkout in enumerate(checkouts, 1):  #enumerate() adds a counter and returns a series of pairs - which is why we have i - integer and checkout - data 
         date_string = checkout["date"].strftime("%m/%d/%Y")
         print(f"\nCheckout #{i}:")
         print(f"  Date:  {date_string}")
@@ -94,12 +94,12 @@ def display_all_checkouts(checkouts):
 def calculate_statistics(checkouts):
      if len(checkouts) == 0:
           return 0.0, 0.00, 0.00, 0.00
-     fees = [checkout["fee"] for checkout in checkouts]
+     fees = [checkout["fee"] for checkout in checkouts] #This formatting is list comprehension vs a standard for loop 
      total_fees = sum(fees)
      average_fees = total_fees / len(fees)
      highest_fee = max(fees)
      lowest_fees = min(fees)
-     return total_fees, average_fees, highest_fee, lowest_fees
+     return total_fees, average_fees, highest_fee, lowest_fees #This return statment is technically a Tuple 
 
 def find_checkouts_by_borrower(checkouts, borrower_name):
     results = []
@@ -194,13 +194,13 @@ def main():
     print("\n--- Enter New Book Return ---")
     print("(Previously saved data will be preserved)\n")
 
-    while True:
-        title, borrower, days, condition = get_book_info()
+    while True: #Allows mulitple book entries 
+        title, borrower, days, condition = get_book_info() #Formatting of Return AssignmentS - This gets the data from the function - Through Tuple unpacking 
         if title == "ESC":
             break 
         fee = calculate_fees(days, condition)
         display_checkout(title, borrower, days, condition, fee)
-        checkout = {
+        checkout = {        #Creating this varible allows us to store the inforamtion submitted by the user 
             "title": title, 
             "borrower": borrower, 
             "days": days, 
@@ -208,13 +208,13 @@ def main():
             "fee": fee, 
             "date": datetime.now()
         }
-        checkouts.append(checkout)
+        checkouts.append(checkout) #Appending this dictonary allows us to keep updated records of new entries
 
 
     if len(checkouts) > 0:
         save_checkouts_to_file(checkouts, filename)
         display_all_checkouts(checkouts)
-        total_fees, average_fees, highest_fee, lowest_fees = calculate_statistics(checkouts)
+        total_fees, average_fees, highest_fee, lowest_fees = calculate_statistics(checkouts) #Unpackng the varibles from Calcuate to send or pass into display summary 
         display_summary(len(checkouts), total_fees, average_fees, highest_fee, lowest_fees)
         search_choice = input("\nWould you like to search for a borrower? (yes/no):  ")
         if search_choice.lower() == "yes":
